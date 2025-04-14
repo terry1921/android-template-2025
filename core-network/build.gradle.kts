@@ -1,11 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "dev.terryrockstar.core.network"
     compileSdk = 35
+
+    val p: Properties = Properties()
+    p.load(project.rootProject.file("local.properties").inputStream())
 
     defaultConfig {
         minSdk = 24
@@ -13,14 +20,22 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
+    buildFeatures {
+        buildConfig = true
+    }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            buildConfigField("String", "API_KEY", "\"${p.getProperty("ConfigApi")}\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            isMinifyEnabled = false
+            buildConfigField("String", "API_KEY", "\"${p.getProperty("ConfigApi")}\"")
         }
     }
     compileOptions {
@@ -30,14 +45,31 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
 }
 
 dependencies {
+    implementation(project(":core-model"))
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso)
+    // coroutines
+    implementation(libs.coroutines)
+    testImplementation(libs.coroutines)
+    testImplementation(libs.coroutines.test)
+
+    // network
+    implementation(libs.sandwich)
+
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.urlconnection)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    testImplementation(libs.okhttp.mockserver)
+    testImplementation(libs.androidx.arch.core)
+
+    // json parsing
+    implementation(libs.gson)
+
+    // di
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 }

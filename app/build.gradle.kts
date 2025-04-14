@@ -61,7 +61,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.12"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     hilt {
         enableAggregatingTask = true
@@ -88,6 +88,12 @@ composeCompiler {
 }
 
 dependencies {
+    // modules
+    implementation(project(":core-data"))
+
+    // modules for unit test
+    testImplementation(project(":core-network"))
+    testImplementation(project(":core-database"))
 
     // androidx
     implementation(libs.material)
@@ -99,6 +105,13 @@ dependencies {
     implementation(libs.androidx.startup)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.swiperefreshlayout)
+
+    // compose
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material)
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.ui.preview)
+    debugImplementation(libs.compose.ui.tooling)
 
     // data binding
     implementation(libs.bindables)
@@ -140,5 +153,5 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso)
-    //androidTestImplementation(libs.android.test.runner)
+    androidTestImplementation(libs.android.test.runner)
 }

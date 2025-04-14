@@ -8,3 +8,6 @@ plugins {
     alias(libs.plugins.hilt.plugin) apply false
     alias(libs.plugins.ksp) apply false
 }
+ext {
+    set("compose_version", "1.5.14")
+}

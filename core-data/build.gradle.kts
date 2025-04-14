@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -33,11 +34,28 @@ android {
 }
 
 dependencies {
+    api(project(":core-model"))
+    api(project(":core-network"))
+    api(project(":core-database"))
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    // coroutines
+    implementation(libs.coroutines)
+    testImplementation(libs.coroutines)
+    testImplementation(libs.coroutines.test)
+
+    // network
+    implementation(libs.sandwich)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+
+    // di
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+
+    // unit test
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso)
+    testImplementation(libs.turbine)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.inline)
 }
