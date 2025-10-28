@@ -3,49 +3,58 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "dev.terryrockstar.core.network"
-    compileSdk = 35
-
-    val p: Properties = Properties()
-    p.load(project.rootProject.file("local.properties").inputStream())
+    compileSdk = 36
 
     defaultConfig {
-        minSdk = 24
-
+        minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
-    buildFeatures {
-        buildConfig = true
-    }
 
     buildTypes {
-        release {
+        val apiKeyProvider =
+            providers
+                .gradleProperty("CONFIG_API")
+                .orElse(providers.environmentVariable("CONFIG_API"))
+                .orElse(
+                    providers.provider {
+                        // Fallback a local.properties si existe (entorno local)
+                        val lp = rootProject.file("local.properties")
+                        if (lp.exists()) {
+                            Properties()
+                                .apply { lp.inputStream().use { load(it) } }
+                                .getProperty("CONFIG_API", "")
+                        } else {
+                            ""
+                        }
+                    }
+                )
+        debug {
             isMinifyEnabled = false
-            buildConfigField("String", "API_KEY", "\"${p.getProperty("ConfigApi")}\"")
+            val key = apiKeyProvider.orNull ?: ""
+            buildConfigField("String", "API_KEY", "\"$key\"")
+        }
+        release {
+            isMinifyEnabled = true
+            val key = apiKeyProvider.orNull ?: ""
+            buildConfigField("String", "API_KEY", "\"$key\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
-        debug {
-            isMinifyEnabled = false
-            buildConfigField("String", "API_KEY", "\"${p.getProperty("ConfigApi")}\"")
-        }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
+    kotlin { jvmToolchain(17) }
+    buildFeatures { buildConfig = true }
 }
 
 dependencies {
@@ -53,23 +62,24 @@ dependencies {
 
     // coroutines
     implementation(libs.coroutines)
-    testImplementation(libs.coroutines)
-    testImplementation(libs.coroutines.test)
 
     // network
-    implementation(libs.sandwich)
-
     implementation(libs.okhttp)
     implementation(libs.okhttp.urlconnection)
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
-    testImplementation(libs.okhttp.mockserver)
-    testImplementation(libs.androidx.arch.core)
-
-    // json parsing
-    implementation(libs.gson)
+    implementation(libs.sandwich)
 
     // di
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
+
+    // logging
+    implementation(libs.timber)
+
+    // test
+    testImplementation(libs.junit)
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.okhttp.mockserver)
+    testImplementation(libs.androidx.arch.core)
 }

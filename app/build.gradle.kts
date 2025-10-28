@@ -1,24 +1,23 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.compose.compiler)
-    id(libs.plugins.hilt.plugin.get().pluginId)
+    // uncommented when set google-services.json
+//    alias(libs.plugins.google.services)
+//    alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.ksp)
+    id(libs.plugins.hilt.plugin.get().pluginId)
 }
 
 android {
-    kapt.includeCompileClasspath = true
     namespace = "dev.terryrockstar.example"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "dev.terryrockstar.example"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 26
+        targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
-
+        versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -49,30 +48,17 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    viewBinding {
-        enable = true
+    kotlin {
+        jvmToolchain(17)
     }
     buildFeatures {
-        compose = true
-        dataBinding = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
     }
     hilt {
         enableAggregatingTask = true
-    }
-    kotlin {
-        sourceSets.configureEach {
-            kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/$name/kotlin/"))
-        }
-    }
-    kotlinOptions {
-        jvmTarget = "11"
     }
     testOptions {
         unitTests {
@@ -82,66 +68,39 @@ android {
     }
 }
 
-composeCompiler {
-    reportsDestination = layout.buildDirectory.dir("compose_compiler")
-    stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
-}
-
 dependencies {
     // modules
-    implementation(project(":core-data"))
-
-    // modules for unit test
-    testImplementation(project(":core-network"))
-    testImplementation(project(":core-database"))
+    implementation(project(":core-ui"))
+    implementation(project(":core-domain"))
+    implementation(project(":core-model"))
 
     // androidx
-    implementation(libs.material)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.fragment)
-    implementation(libs.androidx.lifecycle)
-    implementation(libs.androidx.startup)
+    implementation(libs.material)
     implementation(libs.androidx.activity)
-    implementation(libs.androidx.swiperefreshlayout)
-
-    // compose
-    implementation(libs.compose.ui)
-    implementation(libs.compose.material)
-    implementation(libs.compose.runtime)
-    implementation(libs.compose.ui.preview)
-    debugImplementation(libs.compose.ui.tooling)
-
-    // data binding
-    implementation(libs.bindables)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.splashscreen)
 
     // di
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-    androidTestImplementation(libs.hilt.testing)
-    kaptAndroidTest(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
 
     // coroutines
     implementation(libs.coroutines)
 
-    // whatIf
-    implementation(libs.whatif)
-
-    // timber
-    implementation(libs.timber)
-
     // bundler
     implementation(libs.bundler)
 
-    // customViews
-    implementation(libs.recyclerview)
-    implementation(libs.baseAdapter)
-    implementation(libs.progressView)
-    implementation(libs.glide)
+    // firebase uncommented when set google-services.json
+    //implementation(platform(libs.firebase.bom))
+    //implementation(libs.firebase.analytics)
+    //implementation(libs.firebase.crashlytics)
 
-    // transformation animation
-    implementation(libs.transformationLayout)
+    // logging
+    implementation(libs.timber)
+
+    // whatIf
+    implementation(libs.whatif)
 
     // unit test
     testImplementation(libs.junit)
@@ -150,8 +109,17 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockito.inline)
     testImplementation(libs.coroutines.test)
+
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso)
+    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.android.test.runner)
+
+    // Hilt en androidTest con KSP
+    androidTestImplementation(libs.hilt.testing)
+    kspAndroidTest(libs.hilt.compiler)
+
+    // modules for unit test
+    testImplementation(project(":core-network"))
+    testImplementation(project(":core-database"))
 }
