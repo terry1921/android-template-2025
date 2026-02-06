@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.sandwich)
+    implementation(libs.gson)
 
     // di
     implementation(libs.hilt.android)
