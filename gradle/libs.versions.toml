@@ -23,7 +23,7 @@ compose-bom = "2026.01.01"
 
 # Firebase
 googleServices = "4.4.4"
-firebase-bom = "34.8.0"
+firebase-bom = "34.9.0"
 firebase-crashlytics = "3.0.6"
 
 # Material (Views)
